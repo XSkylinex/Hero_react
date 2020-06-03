@@ -5,6 +5,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "install-npm": "npm install",
     "eject": "expo eject"
   },
   "dependencies": {
