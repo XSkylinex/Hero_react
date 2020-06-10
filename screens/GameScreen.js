@@ -33,9 +33,23 @@ const GameScreen = props => {
     const [pastGuesses, setPastGuesses] = useState([initialGuess]);
     const currentLow = useRef(1);
     const currentHigh = useRef(100);
+    const [availableDeviceWidth, setAvailableDeviceWidth] = useState(Dimensions.get('window').width);
+    const [availableDeviceHeight, setAvailableDeviceHeight] = useState(Dimensions.get('window').height);
+
 
     const { userChoice, onGameOver } = props;
 
+    useEffect( ()=> {
+        const updateLayout = () => {
+            setAvailableDeviceWidth(Dimensions.get('window').width);
+            setAvailableDeviceHeight(Dimensions.get('window').height);
+        }
+        Dimensions.addEventListener('change', updateLayout);
+
+        return () => {
+            Dimensions.removeEventListener('change', updateLayout);
+        };
+    });
 
     useEffect(() => {
         if(currentGuess === userChoice){
@@ -69,31 +83,33 @@ const GameScreen = props => {
     
     let listContanierStyle = styles.listContanier;
 
-    if(Dimensions.get('window').width < 350){
+    if(availableDeviceHeight < 350){
         listContanierStyle = styles.listContanierBig;
     }
 
-    return (
-        <View style={ styles.screen }>
+    if(availableDeviceWidth < 500){
+        return(
+            <View style={ styles.screen }>
             <Text>Opponent's Guess</Text>
-            <NumberContaniner>{ currentGuess }</NumberContaniner>
-            <Card style={ styles.buttonContainer }>
-                <MainButton
+            <View style={styles.controls}>
+            <MainButton
                     onPress={ nextGuessHandler.bind(this, 'lower') }>
                     <Ionicons name="md-remove" size={ 24 } color="white"/>
                 </MainButton>
-                <MainButton
+            <NumberContaniner>{ currentGuess }</NumberContaniner>
+            <MainButton
                 onPress={ nextGuessHandler.bind(this, 'greater') }>
                     <Ionicons name="md-add" size={ 24 } color="white"/>
                 </MainButton>
-            </Card>
+            </View>
             <View style={ listContanierStyle } > 
                 <ScrollView contentContainerStyle={ styles.list }>
                     { pastGuesses.map((guess, index) => renderListItem(guess, pastGuesses.length - index)) }
                 </ScrollView>
             </View>
         </View>
-    );
+        );
+    }
 };
 
 const styles = StyleSheet.create({
@@ -131,6 +147,12 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         //alignItems: 'center',
         justifyContent: 'flex-end',
+    },
+    controls: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        width: '80%',
     },
 });
 
